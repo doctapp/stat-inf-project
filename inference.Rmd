@@ -1,0 +1,22 @@
+---
+title: "ToothGrowth Data Analysis"
+author: "Martin Tapp"
+date: "Sunday, January 25, 2015"
+output: html_document
+---
+
+## Exploratory Data Analysis
+TODO 
+Test if the means for OJ are equal for each dose. Same for VC. 
+Test for each dose if means for OJ and VC are equal.
+
+I think, as minimum one should understand how many rows are in the dataset, and type of columns.
+You can give some summary of numeric column values (like min, median, max etc). Also scatter plots of one column value versus other column value are appreciated.
+
+See [The Effect of Vitamin C on Tooth Growth in Guinea Pigs](https://stat.ethz.ch/R-manual/R-devel/library/datasets/html/ToothGrowth.html)
+
+## Relevant Confidence Intervals
+
+
+## Assumptions and Conclusions
+
