@@ -1,22 +1,95 @@
----
-title: "ToothGrowth Data Analysis"
-author: "Martin Tapp"
-date: "Sunday, January 25, 2015"
-output: html_document
----
+# ToothGrowth Data Analysis
+
+## Summary
+
+The `ToothGrowth` data set relates to the effect of supplement type, orange juice (OJ) and Vitamin C (VC), on the tooth growth of guinea pigs. It contains `r nrow(ToothGrowth)` samples relating to the tooth length (`len`), supplement type (`supp`), and dosage (`dose`). Refer to [The Effect of Vitamin C on Tooth Growth in Guinea Pigs](https://stat.ethz.ch/R-manual/R-devel/library/datasets/html/ToothGrowth.html) for a full reference.
+
+In this study, we use the tooth growth data set to explore the correlation between supplement type and tooth growth.
+
 
 ## Exploratory Data Analysis
-TODO 
-Test if the means for OJ are equal for each dose. Same for VC. 
-Test for each dose if means for OJ and VC are equal.
 
-I think, as minimum one should understand how many rows are in the dataset, and type of columns.
-You can give some summary of numeric column values (like min, median, max etc). Also scatter plots of one column value versus other column value are appreciated.
+We can see that the data set contains a discrete number of dosages:
 
-See [The Effect of Vitamin C on Tooth Growth in Guinea Pigs](https://stat.ethz.ch/R-manual/R-devel/library/datasets/html/ToothGrowth.html)
+```{r}
+unique(ToothGrowth$dose)
+```
+
+Let's illustrate the effect of supplement type on tooth growth using the following figure.
+
+```{r fig.height=3, echo=FALSE}
+library(ggplot2)
+
+ggplot(ToothGrowth, aes(x=dose, y=len, colour = supp)) +
+    geom_point(size = 3) +
+    geom_smooth(method = "lm") +
+    facet_grid(. ~ supp) + 
+    ggtitle("Effect of Supplement Type on Tooth Growth") +
+    xlab("Dose (milligrams)") +
+    ylab("Tooth Length") +
+    guides(colour=guide_legend(title="Supplement type"))
+```
+
+We can see that there seems to be a positive correlation between tooth growth and dosage from the linear regression lines. It seems that tooth growth increases when increasing the supplements dosage for both orange juice and Vitamin C.
+
+The following code calculates the tooth length means and variances by dosage and supplement type.
+
+```{r}
+library(data.table)
+tooth.data <- as.data.table(ToothGrowth)
+tooth.summary <- tooth.data[, list(mean=mean(len), var=var(len)), keyby=list(dose, supp)]
+```
+
+Sample means also point towards a positive correlation. Orange juice seems to have higher growth than Vitamin C for 0.5mg and 1mg dosages while both supplements seem to exhibit the same growth for 2mg. These can be seen in the following figure.
+
+```{r fig.height=2, echo=FALSE}
+ggplot(tooth.summary, aes(x=dose, y=mean, colour = supp)) +
+    geom_point(size = 3) +
+    geom_line() +
+    facet_grid(. ~ supp) +
+    ggtitle("Effect of Supplement Type on Sample Means") +
+    xlab("Dose (milligrams)") +
+    ylab("Tooth Length") +
+    guides(colour=guide_legend(title="Supplement type"))
+```
+
+Orance juice variance is high for 0.5mg and 1mg dosages while low for 2mg. Vitamin C variance is low for 0.5mg and 1mg dosages while high for 2mg. These are illustrated in the following figure.
+
+```{r fig.height=2, echo=FALSE}
+ggplot(tooth.summary, aes(x=dose, y=var, colour = supp)) +
+    geom_point(size = 3) +
+    geom_line() +
+    facet_grid(. ~ supp) +
+    ggtitle("Effect of Supplement Type on Sample Variance") +
+    xlab("Dose (milligrams)") +
+    ylab("Tooth Length") +
+    guides(colour=guide_legend(title="Supplement type"))
+```
+
 
 ## Relevant Confidence Intervals
+
+We use t-confidence intervals to analyze the impact of supplement type on tooth growth. The following tests if orange juice is better than Vitamin C for a 0.5mg dosage.
+
+```{r}
+t.test(tooth.data[dose==0.5 & supp=='OJ',len], tooth.data[dose==0.5 & supp=='VC',len], 'greater')
+```
+
+We can see that orange juice is indeed better than Vitamin C for 0.5mg with 95% confidence. Performing the same for 1mg yields the following.  
+
+```{r}
+t.test(tooth.data[dose==1 & supp=='OJ',len], tooth.data[dose==1 & supp=='VC',len], 'greater')
+```
+
+Again, we can see that orange juice is indeed better than Vitamin C with 95% confidence. Performing the same for 2mg yields the following.  
+
+```{r}
+t.test(tooth.data[dose==2 & supp=='OJ',len], tooth.data[dose==2 & supp=='VC',len], 'greater')
+```
+
+Having a negative correlation implies that orange juice isn't statistically significantly better than Vitamin C.
 
 
 ## Assumptions and Conclusions
 
+We found that orange juice enables higher tooth growth than Vitamin C for 0.5mg and 1mg dosages with 95% confidence. Based on our exploratory analysis, we also found that both supplement types enable a higher tooth growth rate. At 2mg dosage, we found that there is no statistical significance in growth rate between both supplement types.
